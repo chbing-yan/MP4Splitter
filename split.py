@@ -1,21 +1,21 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import subprocess
-import os
-
-#os.system('find ../../../h/Videos/Recording/Gopro/* -maxdepth 3 | grep -i ".mp4">list.txt')
-file_list = []
-for root, dirs, files in os.walk("./"):
-    for fn in files:
-        filepath = os.path.join(root, fn)
-        if fn.endswith(".mp4") or fn.endswith(".MP4"):
-            file_list.append(filepath)
+from moviepy.editor import VideoFileClip
 
 
-for f in file_list:
-    s = os.path.getsize(f)
-    if s < 1500000000:
-        continue
-    cmd = "mp4box -splits 1500000 " + "\"" + f + "\""
-    print cmd
-    os.system(cmd)
+def split_video(input_file, output_prefix, duration):
+    video = VideoFileClip(input_file)
+    num_clips = int(video.duration // duration)
+
+    for i in range(num_clips):
+        start_time = i * duration
+        end_time = min((i + 1) * duration, video.duration)
+        clip = video.subclip(start_time, end_time)
+        clip.write_videofile(f"{output_prefix}_{i + 1}.mp4")
+
+    video.close()
+
+
+input_file = "path_to_your_file"  # 输入的 MP4 视频文件名
+output_prefix = "video_prefix"  # 输出小视频的文件名前缀
+duration = 170  # 每个小视频的时长（秒）
+
+split_video(input_file, output_prefix, duration)
